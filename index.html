@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Happy Birthday, Maitreyee!</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <h1 class="page-title">
+      H<span class="inter">a</span>pp<span class="inter">y Bir</span>th<span
+        class="inter"
+        >da</span
+      >y, <span class="inter">Mai</span>trey<span class="inter">ee</span>!
+    </h1>
+
+    <div class="content">
+      <div class="webcam">
+        <video id="webcam" autoplay playsinline muted></video>
+        <canvas id="canvas"></canvas>
+      </div>
+
+      <div class="cake-scene">
+        <div class="cake-area">
+          <img src="assets/cake_bg.png" alt="" class="cake-bg" />
+          <img src="assets/cake_unlit.gif" alt="" class="cake" />
+          <img src="assets/match.gif" alt="" class="match" />
+          <div class="smoke-layer" id="smokeLayer"></div>
+        </div>
+
+        <div class="age-badge" id="ageBadge">
+          <span class="age-flame age-flame-left" aria-hidden="true">
+            <span class="flame-core"></span>
+          </span>
+          <span class="age-number">24</span>
+          <span class="age-flame age-flame-right" aria-hidden="true">
+            <span class="flame-core"></span>
+          </span>
+        </div>
+      </div>
+
+      <p class="instructions" id="instructions">
+        Use your finger to light the candles, then blow to make a wish!
+      </p>
+
+      <p class="message" id="birthdayMessage">
+        24 looks good on you. Not gonna lie, I kinda miss having you around —
+        hope today's full of good things. Happy birthday!
+      </p>
+
+      <div class="fallback-controls hidden" id="fallbackControls">
+        <button type="button" id="btnLight" class="fallback-btn">
+          🔥 Light candles
+        </button>
+        <button type="button" id="btnBlow" class="fallback-btn">
+          💨 Blow out
+        </button>
+      </div>
+
+      <button type="button" id="fallbackToggle" class="fallback-toggle">
+        camera or mic acting up? tap here
+      </button>
+    </div>
+
+    <p class="signature">
+      ᓚᘏᗢ | made by
+      <a href="https://instagram.com/pikacodes">@pikacodes</a>
+    </p>
+
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+    <script src="script.js"></script>
+  </body>
+</html>
