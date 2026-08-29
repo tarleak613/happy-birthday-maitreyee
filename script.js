@@ -23,6 +23,11 @@ const fallbackToggle = document.getElementById("fallbackToggle");
 const fallbackControls = document.getElementById("fallbackControls");
 const btnLight = document.getElementById("btnLight");
 const btnBlow = document.getElementById("btnBlow");
+const loadingOverlay = document.getElementById("loadingOverlay");
+
+function hideLoadingOverlay() {
+  loadingOverlay.classList.add("hidden");
+}
 
 // ---------------------------------------------------------------------
 // Constants
@@ -245,6 +250,17 @@ async function initBlowDetection() {
   }
 }
 
+// Temporary on-screen readout to help calibrate BLOW_THRESHOLD.
+// Set SHOW_MIC_DEBUG to true if you ever need to re-check mic levels.
+const SHOW_MIC_DEBUG = false;
+let micDebugEl = null;
+if (SHOW_MIC_DEBUG) {
+  micDebugEl = document.createElement("div");
+  micDebugEl.style.cssText =
+    "font-family:monospace;font-size:0.7rem;color:#051fc2;margin-top:0.5rem;";
+  instructionsEl.insertAdjacentElement("afterend", micDebugEl);
+}
+
 function detectBlow() {
   if (!isBlowDetectionActive) return;
 
@@ -252,6 +268,10 @@ function detectBlow() {
   analyser.getByteFrequencyData(dataArray);
 
   const volume = dataArray.reduce((a, b) => a + b, 0) / dataArray.length;
+
+  if (micDebugEl) {
+    micDebugEl.textContent = `mic level: ${volume.toFixed(1)} / threshold: ${BLOW_THRESHOLD}`;
+  }
 
   if (volume > BLOW_THRESHOLD && isCakeLit && !isCandlesBlownOut) {
     blowOutCandles();
@@ -383,9 +403,11 @@ async function initCamera() {
     video.onloadedmetadata = () => {
       video.play();
       startHandTracking();
+      hideLoadingOverlay();
     };
   } catch (err) {
     console.error("Error accessing webcam:", err);
+    hideLoadingOverlay();
     showFallbackControls();
   }
 }
@@ -428,6 +450,15 @@ btnBlow.addEventListener("click", () => {
 // ---------------------------------------------------------------------
 window.addEventListener("DOMContentLoaded", () => {
   document.querySelector(".age-number").textContent = String(CONFIG.age);
+
+  // Safety net: if the camera never resolves (e.g. the permission prompt
+  // gets ignored), don't leave the loader spinning forever.
+  setTimeout(() => {
+    if (!loadingOverlay.classList.contains("hidden")) {
+      hideLoadingOverlay();
+      showFallbackControls();
+    }
+  }, 12000);
 
   initCamera();
 

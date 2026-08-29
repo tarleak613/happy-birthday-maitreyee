@@ -18,6 +18,12 @@
       <div class="webcam">
         <video id="webcam" autoplay playsinline muted></video>
         <canvas id="canvas"></canvas>
+        <div class="loading-overlay" id="loadingOverlay">
+          <div class="loading-spinner" aria-hidden="true">
+            <span class="loading-flame"></span>
+          </div>
+          <p class="loading-text">warming up the webcam<span class="dots"><span>.</span><span>.</span><span>.</span></span></p>
+        </div>
       </div>
 
       <div class="cake-scene">
