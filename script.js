@@ -35,7 +35,7 @@ function hideLoadingOverlay() {
 const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 const WEBCAM_WIDTH = isMobile ? 240 : 300;
 const WEBCAM_HEIGHT = isMobile ? 180 : 225;
-const BLOW_THRESHOLD = isMobile ? 35 : 65; // how sensitive the mic is
+const BLOW_THRESHOLD = isMobile ? 41 : 65; // how sensitive the mic is
 const LIGHT_DISTANCE = 20; // how close match needs to be to light candles
 
 canvas.width = WEBCAM_WIDTH;
