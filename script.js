@@ -461,18 +461,18 @@ window.addEventListener("DOMContentLoaded", () => {
   }, 12000);
 
   initCamera();
+  initBlowDetection();
 
-  if (isMobile) {
-    document.body.addEventListener(
-      "click",
-      () => {
-        if (!audioContext) {
-          initBlowDetection();
-        }
-      },
-      { once: true }
-    );
-  } else {
-    initBlowDetection();
-  }
+  // Some mobile browsers start the audio engine "suspended" until any
+  // touch happens, even after mic permission is granted. This silently
+  // wakes it up on the first tap, without gating anything on it.
+  document.addEventListener(
+    "touchstart",
+    () => {
+      if (audioContext && audioContext.state === "suspended") {
+        audioContext.resume();
+      }
+    },
+    { once: true, passive: true }
+  );
 });
