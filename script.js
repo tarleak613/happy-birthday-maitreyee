@@ -387,39 +387,69 @@ function playBirthdaySong() {
 }
 
 // ---------------------------------------------------------------------
-// Camera + mic (requested together as ONE getUserMedia call, so mobile
-// browsers show a single combined permission prompt instead of two
-// separate ones — the second of which can get silently suppressed)
+// Camera + mic. Tries a single combined getUserMedia call first (nicer
+// on mobile — one prompt instead of two). If that fails for any reason
+// (e.g. a phone that rejects the audio constraints), falls back to
+// requesting camera and mic separately so one failure doesn't kill both.
 // ---------------------------------------------------------------------
+function attachStream(stream) {
+  video.srcObject = stream;
+  video.onloadedmetadata = () => {
+    video.play();
+    startHandTracking();
+    hideLoadingOverlay();
+  };
+}
+
 async function initMedia() {
+  const videoConstraints = {
+    width: WEBCAM_WIDTH,
+    height: WEBCAM_HEIGHT,
+    facingMode: "user",
+  };
+  const audioConstraints = {
+    echoCancellation: false,
+    noiseSuppression: false,
+    autoGainControl: false,
+  };
+
   try {
     const stream = await navigator.mediaDevices.getUserMedia({
-      video: {
-        width: WEBCAM_WIDTH,
-        height: WEBCAM_HEIGHT,
-        facingMode: "user",
-      },
-      audio: {
-  echoCancellation: false,
-  noiseSuppression: false,
-  autoGainControl: false,
-},
+      video: videoConstraints,
+      audio: audioConstraints,
     });
-
-    video.srcObject = stream;
-
-    video.onloadedmetadata = () => {
-      video.play();
-      startHandTracking();
-      hideLoadingOverlay();
-    };
-
+    attachStream(stream);
     startBlowDetection(stream);
+    return;
   } catch (err) {
-    console.error("Error accessing camera/microphone:", err);
-    hideLoadingOverlay();
-    showFallbackControls();
+    console.warn("Combined camera+mic request failed, trying separately:", err);
   }
+
+  // Fallback: request camera and mic independently
+  let gotVideo = false;
+  try {
+    const videoStream = await navigator.mediaDevices.getUserMedia({
+      video: videoConstraints,
+    });
+    attachStream(videoStream);
+    gotVideo = true;
+  } catch (err) {
+    console.error("Error accessing camera:", err);
+  }
+
+  try {
+    const audioStream = await navigator.mediaDevices.getUserMedia({
+      audio: audioConstraints,
+    });
+    startBlowDetection(audioStream);
+  } catch (err) {
+    console.error("Error accessing microphone:", err);
+  }
+
+  if (!gotVideo) {
+    hideLoadingOverlay();
+  }
+  showFallbackControls();
 }
 
 function startHandTracking() {
