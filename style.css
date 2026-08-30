@@ -186,6 +186,15 @@ body {
   margin-top: 0.25rem;
   font-family: "Pixelify Sans", sans-serif;
 }
+.age-number-old {
+  font-size: 1.2rem;
+  color: #b9c1e8;
+  text-decoration: line-through;
+  text-decoration-color: #ff6a9c;
+  text-decoration-thickness: 2px;
+  margin-right: 0.15rem;
+  font-family: "Pixelify Sans", sans-serif;
+}
 
 .age-number {
   font-size: 1.9rem;
