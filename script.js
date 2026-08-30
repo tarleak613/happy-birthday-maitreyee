@@ -231,10 +231,11 @@ function getAudioContext() {
   return audioContext;
 }
 
-async function initBlowDetection() {
+// Feeds an already-open audio track into the blow-detection analyser.
+// Called from initMedia() with the audio track from the combined
+// camera+mic stream, so we never issue a second getUserMedia prompt.
+function startBlowDetection(stream) {
   try {
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-
     const ac = getAudioContext();
     analyser = ac.createAnalyser();
     microphone = ac.createMediaStreamSource(stream);
@@ -245,13 +246,13 @@ async function initBlowDetection() {
     isBlowDetectionActive = true;
     detectBlow();
   } catch (err) {
-    console.error("Error accessing microphone:", err);
+    console.error("Error setting up blow detection:", err);
     showFallbackControls();
   }
 }
 
 // Temporary on-screen readout to help calibrate BLOW_THRESHOLD.
-// Set SHOW_MIC_DEBUG to true if you ever need to re-check mic levels.
+// Set SHOW_MIC_DEBUG to false (or delete this block) once you've dialed it in.
 const SHOW_MIC_DEBUG = false;
 let micDebugEl = null;
 if (SHOW_MIC_DEBUG) {
@@ -386,9 +387,11 @@ function playBirthdaySong() {
 }
 
 // ---------------------------------------------------------------------
-// Camera
+// Camera + mic (requested together as ONE getUserMedia call, so mobile
+// browsers show a single combined permission prompt instead of two
+// separate ones — the second of which can get silently suppressed)
 // ---------------------------------------------------------------------
-async function initCamera() {
+async function initMedia() {
   try {
     const stream = await navigator.mediaDevices.getUserMedia({
       video: {
@@ -396,6 +399,7 @@ async function initCamera() {
         height: WEBCAM_HEIGHT,
         facingMode: "user",
       },
+      audio: true,
     });
 
     video.srcObject = stream;
@@ -405,8 +409,10 @@ async function initCamera() {
       startHandTracking();
       hideLoadingOverlay();
     };
+
+    startBlowDetection(stream);
   } catch (err) {
-    console.error("Error accessing webcam:", err);
+    console.error("Error accessing camera/microphone:", err);
     hideLoadingOverlay();
     showFallbackControls();
   }
@@ -460,8 +466,7 @@ window.addEventListener("DOMContentLoaded", () => {
     }
   }, 12000);
 
-  initCamera();
-  initBlowDetection();
+  initMedia();
 
   // Some mobile browsers start the audio engine "suspended" until any
   // touch happens, even after mic permission is granted. This silently
