@@ -47,6 +47,7 @@ let isHandDetected = false;
 
 let isCakeLit = false;
 let isCandlesBlownOut = false;
+let cakeLitAt = 0;
 
 // ---------------------------------------------------------------------
 // Hand tracking (MediaPipe)
@@ -127,6 +128,7 @@ function lightCake() {
   if (isCakeLit) return;
 
   isCakeLit = true;
+  cakeLitAt = performance.now();
   cakeImg.src = "assets/cake_lit.gif";
   match.style.display = "none";
   ageBadge.classList.add("lit");
@@ -264,7 +266,6 @@ if (SHOW_MIC_DEBUG) {
 
 function detectBlow() {
   if (!isBlowDetectionActive) return;
-
   const dataArray = new Uint8Array(analyser.frequencyBinCount);
   analyser.getByteFrequencyData(dataArray);
 
@@ -274,7 +275,15 @@ function detectBlow() {
     micDebugEl.textContent = `mic level: ${volume.toFixed(1)} / threshold: ${BLOW_THRESHOLD}`;
   }
 
-  if (volume > BLOW_THRESHOLD && isCakeLit && !isCandlesBlownOut) {
+  const BLOW_GRACE_PERIOD_MS = 1200; // ignore mic right after lighting (strike sound feedback)
+  const timeSinceLit = performance.now() - cakeLitAt;
+
+  if (
+    volume > BLOW_THRESHOLD &&
+    isCakeLit &&
+    !isCandlesBlownOut &&
+    timeSinceLit > BLOW_GRACE_PERIOD_MS
+  ) {
     blowOutCandles();
   }
 
