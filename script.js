@@ -253,7 +253,7 @@ function startBlowDetection(stream) {
 
 // Temporary on-screen readout to help calibrate BLOW_THRESHOLD.
 // Set SHOW_MIC_DEBUG to false (or delete this block) once you've dialed it in.
-const SHOW_MIC_DEBUG = false;
+const SHOW_MIC_DEBUG = true;
 let micDebugEl = null;
 if (SHOW_MIC_DEBUG) {
   micDebugEl = document.createElement("div");
@@ -399,7 +399,11 @@ async function initMedia() {
         height: WEBCAM_HEIGHT,
         facingMode: "user",
       },
-      audio: true,
+      audio: {
+  echoCancellation: false,
+  noiseSuppression: false,
+  autoGainControl: false,
+},
     });
 
     video.srcObject = stream;
